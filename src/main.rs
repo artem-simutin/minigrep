@@ -1,12 +1,16 @@
-use core::arch;
-use std::env;
+use minigrep::{run, Config};
+use std::{env, process};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let requested_path = &args[0];
-    let filename = &args[1];
+    let config = Config::new(&args).unwrap_or_else(|err| {
+        println!("Problem parsing arguments: {}", err);
+        process::exit(1);
+    });
 
-    println!("Path: {:?}", requested_path);
-    println!("Filename: {:?}", filename);
+    if let Err(e) = run(config) {
+        println!("Aplication error: {}", e);
+        process::exit(1);
+    }
 }
