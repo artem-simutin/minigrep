@@ -16,6 +16,8 @@ impl Config {
 
         let is_case_sensitive = env::var("IS_CASE_INSENSITIVE").is_err();
 
+        println!("ENV: {}", is_case_sensitive);
+
         let path = args[0].clone();
         let query = args[1].clone();
         let filename = args[2].clone();
@@ -39,8 +41,6 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 
         return Ok(());
     }
-
-    print!("{}", config.is_case_sensitive);
 
     for result in search_case_insensitive(&config.query, &contents) {
         print!("{}\n", result);
