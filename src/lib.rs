@@ -2,28 +2,30 @@ use std::error::Error;
 use std::{env, fs, vec};
 
 pub struct Config {
-    pub path: String,
     pub query: String,
     pub filename: String,
     pub is_case_sensitive: bool,
 }
 
 impl Config {
-    pub fn new(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 3 {
-            return Err("not enough arguments");
-        }
+    pub fn new(mut args: env::Args) -> Result<Config, &'static str> {
+        args.next();
+
+        let query = match args.next() {
+            Some(value) => value,
+            None => return Err("Didn't get a query string"),
+        };
+
+        let filename = match args.next() {
+            Some(value) => value,
+            None => return Err("Didn't get a file name"),
+        };
 
         let is_case_sensitive = env::var("IS_CASE_INSENSITIVE").is_err();
 
         println!("ENV: {}", is_case_sensitive);
 
-        let path = args[0].clone();
-        let query = args[1].clone();
-        let filename = args[2].clone();
-
         return Ok(Config {
-            path,
             query,
             filename,
             is_case_sensitive,
@@ -50,15 +52,10 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 }
 
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut results = vec![];
-
-    for line in contents.lines() {
-        if line.contains(&query) {
-            results.push(line)
-        }
-    }
-
-    return results;
+    contents
+        .lines()
+        .filter(|line| line.contains(query))
+        .collect()
 }
 
 pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
